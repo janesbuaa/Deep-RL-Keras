@@ -3,30 +3,30 @@ import tensorflow as tf
 from keras.layers import Conv2D, MaxPooling2D
 
 def get_session():
-    """ Limit session memory usage
+    """ Limit session memory usage                                          限制会话内存使用
     """
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     return tf.Session(config=config)
 
 def tfSummary(tag, val):
-    """ Scalar Value Tensorflow Summary
+    """ Scalar Value Tensorflow Summary                                     标量值Tensorflow摘要
     """
     return tf.Summary(value=[tf.Summary.Value(tag=tag, simple_value=val)])
 
 def conv_layer(d, k):
-    """ Returns a 2D Conv layer, with and ReLU activation
+    """ Returns a 2D Conv layer, with and ReLU activation                   返回带有ReLU激活的2D转换层
     """
     return Conv2D(d, k, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')
 
 def conv_block(inp, d=3, pool_size=(2, 2), k=3):
-    """ Returns a 2D Conv block, with a convolutional layer, max-pooling
+    """ Returns a 2D Conv block, with a convolutional layer, max-pooling    返回带有卷积层的2D Conv块，最大池化
     """
     conv = conv_layer(d, k)(inp)
     return MaxPooling2D(pool_size=pool_size)(conv)
 
 class OrnsteinUhlenbeckProcess(object):
-    """ Ornstein-Uhlenbeck Noise (original code by @slowbull)
+    """ Ornstein-Uhlenbeck Noise (original code by @slowbull)               奥恩斯坦-乌伦贝克噪声（@slowbull的原始代码）
     """
     def __init__(self, theta=0.15, mu=0, sigma=1, x0=0, dt=1e-2, n_steps_annealing=100, size=1):
         self.theta = theta

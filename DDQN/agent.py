@@ -9,7 +9,7 @@ from keras.regularizers import l2
 from utils.networks import conv_block
 
 class Agent:
-    """ Agent Class (Network) for DDQN
+    """ Agent Class (Network) for DDQN      DDQN的代理类（网络）
     """
 
     def __init__(self, state_dim, action_dim, lr, tau, dueling):
@@ -17,10 +17,10 @@ class Agent:
         self.action_dim = action_dim
         self.tau = tau
         self.dueling = dueling
-        # Initialize Deep Q-Network
+        # Initialize Deep Q-Network         初始化深度强化网络
         self.model = self.network(dueling)
         self.model.compile(Adam(lr), 'mse')
-        # Build target Q-Network
+        # Build target Q-Network            建立目标Q网络
         self.target_model = self.network(dueling)
         self.target_model.compile(Adam(lr), 'mse')
         self.target_model.set_weights(self.model.get_weights())
@@ -29,11 +29,12 @@ class Agent:
         return K.mean(K.sqrt(1 + K.square(y_pred - y_true)) - 1, axis=-1)
 
     def network(self, dueling):
-        """ Build Deep Q-Network
+        """ Build Deep Q-Network            建立深度Q网络
         """
         inp = Input((self.state_dim))
 
         # Determine whether we are dealing with an image input (Atari) or not
+        # 确定我们是否正在处理图像输入（Atari）
         if(len(self.state_dim) > 2):
             inp = Input((self.state_dim[1:]))
             x = conv_block(inp, 32, (2, 2), 8)
@@ -48,6 +49,7 @@ class Agent:
 
         if(dueling):
             # Have the network estimate the Advantage function as an intermediate layer
+            # 让网络估计Advantage function作为中间层
             x = Dense(self.action_dim + 1, activation='linear')(x)
             x = Lambda(lambda i: K.expand_dims(i[:,0],-1) + i[:,1:] - K.mean(i[:,1:], keepdims=True), output_shape=(self.action_dim,))(x)
         else:
@@ -55,7 +57,7 @@ class Agent:
         return Model(inp, x)
 
     def transfer_weights(self):
-        """ Transfer Weights from Model to Target at rate Tau
+        """ Transfer Weights from Model to Target at rate Tau   以Tau速率将权重从模型转移到目标
         """
         W = self.model.get_weights()
         tgt_W = self.target_model.get_weights()
@@ -64,7 +66,7 @@ class Agent:
         self.target_model.set_weights(tgt_W)
 
     def fit(self, inp, targ):
-        """ Perform one epoch of training
+        """ Perform one epoch of training                       进行一个时期的训练
         """
         self.model.fit(self.reshape(inp), targ, epochs=1, verbose=0)
 
